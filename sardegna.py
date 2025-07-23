@@ -3,13 +3,16 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import plotly.express as px
 import streamlit.components.v1 as components
+import requests
+from bs4 import BeautifulSoup
 
 # --- Caricamento dati ---
 def carica_dati():
-    dati = pd.read_excel("Incendi-completo-sardegna.xlsx")
+
+    dati = pd.read_excel("https://github.com/Charon04/Progetto_Sardegna/raw/refs/heads/main/Incendi-completo-sardegna.xlsx")
+
     dati = dati.dropna(subset=["COMUNE DI INSORGENZA"])
-    dati["COMUNE DI INSORGENZA"] = dati["COMUNE DI INSORGENZA"].str.strip().str.upper()
- 
+    dati["COMUNE DI INSORGENZA"] = dati["COMUNE DI INSORGENZA"].str.strip().str.upper() 
     dati["DATA"] = pd.to_datetime(dati["DATA"])
     dati["Year"] = dati["DATA"].dt.year
     dati["Month"] = dati["DATA"].dt.month
@@ -65,8 +68,6 @@ def causa():
     fig.update_layout(xaxis_tickangle=-45)
     st.plotly_chart(fig)
 
-with open("testo.txt", "r", encoding="utf-8") as f:
-    testo = f.read()
 
 # --- Inizializza sessione per pagina ---
 if "pagina" not in st.session_state:
@@ -112,6 +113,9 @@ with col4:
         st.session_state.pagina = "Mappa" 
 
 # --- Contenuto in base alla pagina selezionata ---
+url="https://github.com/Charon04/Progetto_Sardegna/raw/refs/heads/main/testo.txt" 
+testo=requests.get(url).text
+
 if st.session_state.pagina == "Home":
     st.title("Rischio Incendi")
     st.write(testo)
@@ -155,9 +159,10 @@ elif st.session_state.pagina == "Chatbot":
         risposta = consigli_incendio(domanda)
         st.success(risposta)
 
-
 elif st.session_state.pagina == "Mappa":
     st.title("Mappa")
-    with open("mappa_incendi_sardegna_cluster.html", "r", encoding="utf-8") as f:
-        mappa_html = f.read()
-    components.html(mappa_html, height=730, scrolling=True)   
+    response = requests.get("https://github.com/Charon04/Progetto_Sardegna/raw/refs/heads/main/mappa_incendi_sardegna_cluster.html")
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.text, "html.parser")
+        mappa_html = str(soup)
+        components.html(mappa_html, height=600, scrolling=True)
