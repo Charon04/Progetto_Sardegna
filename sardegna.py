@@ -113,7 +113,7 @@ with col4:
         st.session_state.pagina = "Mappa" 
 
 # --- Contenuto in base alla pagina selezionata ---
-url="https://github.com/Charon04/Progetto_Sardegna/raw/refs/heads/main/testo.txt" 
+url="https://github.com/Charon04/Progetto_Sardegna/raw/refs/heads/main/testo.md" 
 testo=requests.get(url).text
 
 if st.session_state.pagina == "Home":
